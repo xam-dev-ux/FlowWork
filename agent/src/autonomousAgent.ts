@@ -75,28 +75,33 @@ export class AutonomousAgent {
     console.log("\n🚀 Starting Autonomous Agent...\n");
 
     // Escuchar eventos del contrato
-    this.contractClient.onTaskCreated(async (event: any) => {
-      await this.handleTaskCreated(event);
+    this.contractClient.onTaskCreated(async (taskId, client, category, bounty, deadline, description, isRecurring, recurringInterval, event) => {
+      await this.handleTaskCreated(taskId, client, category, bounty, deadline, description);
     });
 
-    this.contractClient.onAgentAssigned(async (event: any) => {
-      await this.handleAgentAssigned(event);
+    this.contractClient.onAgentAssigned(async (taskId, agent, price, event) => {
+      await this.handleAgentAssigned(taskId, agent, price);
     });
 
-    this.contractClient.onTaskApproved(async (event: any) => {
-      await this.handleTaskApproved(event);
+    this.contractClient.onTaskApproved(async (taskId, client, agent, amount, protocolFee, reviewerFee, event) => {
+      await this.handleTaskApproved(taskId, agent, amount);
     });
 
     console.log("✅ Autonomous Agent running!");
     console.log("🎯 Waiting for tasks...\n");
   }
 
-  private async handleTaskCreated(event: any) {
-    const taskId = Number(event.args.taskId);
-    const client = event.args.client;
-    const category = Number(event.args.category);
-    const bounty = event.args.bounty;
-    const description = event.args.description;
+  private async handleTaskCreated(
+    taskId: any,
+    client: any,
+    category: any,
+    bounty: any,
+    deadline: any,
+    description: any
+  ) {
+    taskId = Number(taskId);
+    category = Number(category);
+    deadline = Number(deadline);
 
     console.log("\n🆕 New Task Detected!");
     console.log(`   Task ID: ${taskId}`);
@@ -190,9 +195,8 @@ export class AutonomousAgent {
     }
   }
 
-  private async handleAgentAssigned(event: any) {
-    const taskId = Number(event.args.taskId);
-    const agent = event.args.agent;
+  private async handleAgentAssigned(taskId: any, agent: any, price: any) {
+    taskId = Number(taskId);
     const myAddress = await this.contractClient.getAddress();
 
     // Solo procesar si nos asignaron a nosotros
@@ -253,10 +257,8 @@ export class AutonomousAgent {
     }
   }
 
-  private async handleTaskApproved(event: any) {
-    const taskId = Number(event.args.taskId);
-    const agent = event.args.agent;
-    const amount = event.args.amount;
+  private async handleTaskApproved(taskId: any, agent: any, amount: any) {
+    taskId = Number(taskId);
     const myAddress = await this.contractClient.getAddress();
 
     if (agent.toLowerCase() !== myAddress.toLowerCase()) {
