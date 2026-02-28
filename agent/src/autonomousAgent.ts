@@ -5,6 +5,7 @@ import { ContractClient } from "./contractClient";
 import { canExecuteTask, executeTask } from "./taskExecutor";
 import { uploadToIPFS } from "./ipfsClient";
 import { ethers } from "ethers";
+import { TaskPoller } from "./polling";
 
 dotenv.config();
 
@@ -32,6 +33,8 @@ export class AutonomousAgent {
   private config: AgentConfig;
   private activeTasks: Map<number, Task> = new Map();
   private assignedTasks: Map<number, Task> = new Map();
+  private poller: TaskPoller;
+  private usePolling: boolean;
 
   constructor() {
     if (!process.env.CONTRACT_ADDRESS) {
@@ -61,6 +64,16 @@ export class AutonomousAgent {
         : [], // Todas por defecto
     };
 
+    // Configurar polling vs events
+    this.usePolling = process.env.USE_POLLING !== "false"; // Polling por defecto
+    const pollingInterval = parseInt(process.env.POLLING_INTERVAL || "10000"); // 10 segundos
+
+    // Inicializar poller
+    this.poller = new TaskPoller(this.contractClient, {
+      interval: pollingInterval,
+      batchSize: 10,
+    });
+
     console.log("🤖 Autonomous Agent initialized");
     console.log("⚙️  Configuration:");
     console.log(`   Min bounty: $${this.config.minBounty}`);
@@ -69,26 +82,80 @@ export class AutonomousAgent {
     console.log(`   Auto bid: ${this.config.autoBid}`);
     console.log(`   Auto execute: ${this.config.autoExecute}`);
     console.log(`   Categories: ${this.config.categories.length ? this.config.categories : "ALL"}`);
+    console.log(`   Mode: ${this.usePolling ? "POLLING" : "EVENTS"}`);
+    if (this.usePolling) {
+      console.log(`   Polling interval: ${pollingInterval}ms`);
+    }
   }
 
   async start() {
     console.log("\n🚀 Starting Autonomous Agent...\n");
 
-    // Escuchar eventos del contrato
-    this.contractClient.onTaskCreated(async (taskId, client, category, bounty, deadline, description, isRecurring, recurringInterval, event) => {
-      await this.handleTaskCreated(taskId, client, category, bounty, deadline, description);
-    });
+    if (this.usePolling) {
+      // Use polling mode (recommended for public RPCs)
+      this.poller.onTaskCreated(async (taskId, task) => {
+        await this.handleTaskCreatedFromPoll(taskId, task);
+      });
 
-    this.contractClient.onAgentAssigned(async (taskId, agent, price, event) => {
-      await this.handleAgentAssigned(taskId, agent, price);
-    });
+      this.poller.onTaskStatusChange(async (taskId, oldStatus, newStatus) => {
+        await this.handleTaskStatusChange(taskId, oldStatus, newStatus);
+      });
 
-    this.contractClient.onTaskApproved(async (taskId, client, agent, amount, protocolFee, reviewerFee, event) => {
-      await this.handleTaskApproved(taskId, agent, amount);
-    });
+      await this.poller.start();
+    } else {
+      // Use event listeners (requires reliable RPC like Alchemy)
+      console.log("⚠️  Using event listeners - may have issues with public RPCs");
+      console.log("   Consider using USE_POLLING=true for better reliability\n");
+
+      this.contractClient.onTaskCreated(async (taskId, client, category, bounty, deadline, description, isRecurring, recurringInterval, event) => {
+        await this.handleTaskCreated(taskId, client, category, bounty, deadline, description);
+      });
+
+      this.contractClient.onAgentAssigned(async (taskId, agent, price, event) => {
+        await this.handleAgentAssigned(taskId, agent, price);
+      });
+
+      this.contractClient.onTaskApproved(async (taskId, client, agent, amount, protocolFee, reviewerFee, event) => {
+        await this.handleTaskApproved(taskId, agent, amount);
+      });
+    }
 
     console.log("✅ Autonomous Agent running!");
     console.log("🎯 Waiting for tasks...\n");
+  }
+
+  private async handleTaskCreatedFromPoll(taskId: number, task: any) {
+    const client = task.client;
+    const category = Number(task.category);
+    const bounty = task.bounty;
+    const deadline = Number(task.deadline);
+    const description = task.description;
+
+    await this.handleTaskCreated(taskId, client, category, bounty, deadline, description);
+  }
+
+  private async handleTaskStatusChange(taskId: number, oldStatus: number, newStatus: number) {
+    const task = this.activeTasks.get(taskId) || this.assignedTasks.get(taskId);
+    if (!task) return;
+
+    const myAddress = await this.contractClient.getAddress();
+
+    // Status 1 = AgentAssigned
+    if (newStatus === 1) {
+      // Check if we were assigned
+      const taskData = await this.contractClient.getTask(taskId);
+      if (taskData.assignedAgent.toLowerCase() === myAddress.toLowerCase()) {
+        await this.handleAgentAssigned(taskId, taskData.assignedAgent, 0);
+      }
+    }
+
+    // Status 3 = Approved
+    if (newStatus === 3) {
+      const taskData = await this.contractClient.getTask(taskId);
+      if (taskData.assignedAgent.toLowerCase() === myAddress.toLowerCase()) {
+        await this.handleTaskApproved(taskId, taskData.assignedAgent, task.bounty);
+      }
+    }
   }
 
   private async handleTaskCreated(

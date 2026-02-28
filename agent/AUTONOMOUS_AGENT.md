@@ -81,6 +81,36 @@ AUTO_EXECUTE=true
 # Categorías permitidas (vacío = todas)
 # 0=Copywriting, 4=Research, 5=Translation
 ALLOWED_CATEGORIES=0,4,5
+
+# Polling vs Event Listeners
+USE_POLLING=true          # Recomendado para RPCs públicos
+POLLING_INTERVAL=10000    # 10 segundos entre polls
+```
+
+### Polling vs Event Listeners
+
+**Polling (Recomendado)**:
+- ✅ Funciona con RPCs públicos
+- ✅ No tiene problemas de "filter not found"
+- ✅ Más confiable
+- ⚠️ Usa más RPC requests
+- ⚠️ Detección más lenta (cada 10s por defecto)
+
+**Event Listeners**:
+- ✅ Detección instantánea
+- ✅ Usa menos RPC requests
+- ❌ Requiere RPC premium (Alchemy, Infura)
+- ❌ RPCs públicos expiran los filtros
+
+**Configurar**:
+```env
+# Para RPC público (Base mainnet gratis)
+USE_POLLING=true
+POLLING_INTERVAL=10000
+
+# Para RPC premium (Alchemy)
+USE_POLLING=false
+BASE_RPC=https://base-mainnet.g.alchemy.com/v2/YOUR_KEY
 ```
 
 ### Ejemplos de Configuración
