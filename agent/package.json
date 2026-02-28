@@ -7,10 +7,12 @@
     "node": ">=22"
   },
   "scripts": {
-  "start": "tsx src/index-simple.ts",
-  "dev": "tsx watch src/index-simple.ts",
-  "build": "echo 'No build needed'"
-},
+    "start": "tsx src/index-simple.ts",
+    "dev": "tsx watch src/index-simple.ts",
+    "auto": "tsx src/index-autonomous.ts",
+    "auto:watch": "tsx watch src/index-autonomous.ts",
+    "build": "echo 'No build needed'"
+  },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.78.0",
     "dotenv": "^16.4.1",

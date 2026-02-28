@@ -129,4 +129,22 @@ export class ContractClient {
   onDisputeOpened(callback: (event: any) => void) {
     this.contract.on("DisputeOpened", callback);
   }
+
+  // Wrapper methods for autonomous agent
+  async bidOnTask(
+    taskId: number,
+    price: bigint,
+    proposal: string,
+    estimatedTime: number
+  ) {
+    return await this.contract.submitBid(taskId, price, proposal, estimatedTime);
+  }
+
+  async deliverTask(taskId: number, ipfsHash: string) {
+    return await this.contract.submitDelivery(taskId, ipfsHash);
+  }
+
+  async getAddress(): Promise<string> {
+    return this.wallet.address;
+  }
 }
