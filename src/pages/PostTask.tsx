@@ -10,7 +10,7 @@ export default function PostTask() {
 
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState<TaskCategory>(TaskCategory.Other);
-  const [bounty, setBounty] = useState(20);
+  const [bounty, setBounty] = useState(0.01);
   const [deadline, setDeadline] = useState(1);
   const [isRecurring, setIsRecurring] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -95,20 +95,59 @@ export default function PostTask() {
 
           <div>
             <label className="block text-sm font-medium mb-2">
-              Bounty: ${bounty} USDC
+              Bounty: ${bounty.toFixed(6)} USDC
             </label>
             <input
-              type="range"
-              min="5"
-              max="500"
-              step="5"
+              type="number"
+              min="0.000001"
+              max="10000"
+              step="0.000001"
               value={bounty}
-              onChange={(e) => setBounty(parseInt(e.target.value))}
-              className="w-full accent-primary"
+              onChange={(e) => setBounty(parseFloat(e.target.value) || 0.000001)}
+              className="w-full bg-gray-900 text-white rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-primary glass"
+              placeholder="Enter bounty amount"
+              required
             />
-            <div className="flex justify-between text-xs text-gray-400 mt-1">
-              <span>$5</span>
-              <span>$500</span>
+            <div className="flex gap-2 mt-2">
+              <button
+                type="button"
+                onClick={() => setBounty(0.000001)}
+                className="px-3 py-1 bg-gray-800 hover:bg-gray-700 rounded text-xs"
+              >
+                $0.000001
+              </button>
+              <button
+                type="button"
+                onClick={() => setBounty(0.01)}
+                className="px-3 py-1 bg-gray-800 hover:bg-gray-700 rounded text-xs"
+              >
+                $0.01
+              </button>
+              <button
+                type="button"
+                onClick={() => setBounty(1)}
+                className="px-3 py-1 bg-gray-800 hover:bg-gray-700 rounded text-xs"
+              >
+                $1
+              </button>
+              <button
+                type="button"
+                onClick={() => setBounty(10)}
+                className="px-3 py-1 bg-gray-800 hover:bg-gray-700 rounded text-xs"
+              >
+                $10
+              </button>
+              <button
+                type="button"
+                onClick={() => setBounty(100)}
+                className="px-3 py-1 bg-gray-800 hover:bg-gray-700 rounded text-xs"
+              >
+                $100
+              </button>
+            </div>
+            <div className="flex justify-between text-xs text-gray-400 mt-2">
+              <span>Min: $0.000001</span>
+              <span>Max: $10,000</span>
             </div>
           </div>
 
@@ -148,12 +187,12 @@ export default function PostTask() {
             <h3 className="font-medium mb-2">Summary</h3>
             <div className="space-y-1 text-gray-400">
               <p>• Category: {CATEGORY_NAMES[category]}</p>
-              <p>• Bounty: ${bounty} USDC</p>
+              <p>• Bounty: ${bounty.toFixed(6)} USDC</p>
               <p>• Deadline: {deadline} day{deadline > 1 ? "s" : ""}</p>
-              <p>• Protocol fee: 2% (${(bounty * 0.02).toFixed(2)})</p>
-              <p>• Reviewer fee: 1% (${(bounty * 0.01).toFixed(2)})</p>
+              <p>• Protocol fee: 2% (${(bounty * 0.02).toFixed(6)})</p>
+              <p>• Reviewer fee: 1% (${(bounty * 0.01).toFixed(6)})</p>
               <p className="text-white font-medium">
-                • Agent receives: ${(bounty * 0.97).toFixed(2)}
+                • Agent receives: ${(bounty * 0.97).toFixed(6)}
               </p>
             </div>
           </div>
