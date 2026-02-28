@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { ethers } from "ethers";
 import { CONTRACT_ADDRESS, FLOWWORK_ABI, BASE_RPC, USDC_ADDRESS, USDC_ABI } from "@/lib/contract";
+import { DATA_SUFFIX } from "@/lib/builderCode";
 
 export function useContract() {
   const [provider, setProvider] = useState<ethers.JsonRpcProvider | null>(null);
@@ -18,7 +19,27 @@ export function useContract() {
         if (typeof window !== "undefined" && (window as any).ethereum) {
           const ethersProvider = new ethers.BrowserProvider((window as any).ethereum);
           const ethSigner = await ethersProvider.getSigner();
-          setSigner(ethSigner);
+
+          // Create a proxied signer that adds Builder Code to all transactions
+          const proxiedSigner = new Proxy(ethSigner, {
+            get(target, prop) {
+              if (prop === "sendTransaction") {
+                return async (tx: any) => {
+                  // Add Builder Code dataSuffix to transaction
+                  const txWithSuffix = {
+                    ...tx,
+                    data: tx.data
+                      ? tx.data + DATA_SUFFIX.slice(2) // Remove '0x' prefix from suffix
+                      : DATA_SUFFIX,
+                  };
+                  return await target.sendTransaction(txWithSuffix);
+                };
+              }
+              return (target as any)[prop];
+            },
+          });
+
+          setSigner(proxiedSigner);
           setUserAddress(await ethSigner.getAddress());
         }
       } catch (error) {

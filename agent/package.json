@@ -15,12 +15,14 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.78.0",
+    "@xmtp/agent-sdk": "^0.0.12",
     "dotenv": "^16.4.1",
     "ethers": "^6.10.0",
     "node-fetch": "^3.3.2",
     "openai": "^4.26.0",
-    "@xmtp/agent-sdk": "^0.0.12",
-    "viem": "^2.7.0"
+    "ox": "^0.13.2",
+    "viem": "^2.46.3",
+    "wagmi": "^3.5.0"
   },
   "devDependencies": {
     "@types/node": "^20.11.0",
