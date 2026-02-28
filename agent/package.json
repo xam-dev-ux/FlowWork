@@ -1,0 +1,23 @@
+{
+  "name": "flowwork-agent",
+  "version": "1.0.0",
+  "description": "XMTP chat agent for FlowWork marketplace",
+  "main": "dist/index.js",
+  "scripts": {
+    "start": "tsx src/index-simple.ts",
+    "dev": "tsx watch src/index-simple.ts",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.78.0",
+    "dotenv": "^16.4.1",
+    "ethers": "^6.10.0",
+    "node-fetch": "^3.3.2",
+    "openai": "^4.26.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.3"
+  }
+}

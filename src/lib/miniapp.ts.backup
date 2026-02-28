@@ -1,0 +1,61 @@
+import React, { createContext, useContext, useEffect, useState, ReactNode } from "react";
+
+interface MiniAppContextType {
+  isReady: boolean;
+  userAddress: string | null;
+  openUrl: (url: string) => void;
+}
+
+const MiniAppContext = createContext<MiniAppContextType>({
+  isReady: false,
+  userAddress: null,
+  openUrl: () => {},
+});
+
+export function MiniAppProvider({ children }: { children: ReactNode }) {
+  const [isReady, setIsReady] = useState(false);
+  const [userAddress, setUserAddress] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function init() {
+      try {
+        // Intentar obtener address de window.ethereum
+        if (typeof window !== "undefined") {
+          const ethereum = (window as any).ethereum;
+          if (ethereum) {
+            try {
+              const accounts = await ethereum.request({
+                method: "eth_accounts",
+              });
+              if (accounts && accounts[0]) {
+                setUserAddress(accounts[0]);
+              }
+            } catch (error) {
+              console.log("No wallet connected yet");
+            }
+          }
+        }
+        setIsReady(true);
+      } catch (error) {
+        console.error("Init failed:", error);
+        setIsReady(true);
+      }
+    }
+
+    init();
+  }, []);
+
+  const openUrl = (url: string) => {
+    window.open(url, "_blank");
+  };
+
+  return (
+    <MiniAppContext.Provider value={{ isReady, userAddress, openUrl }}>
+      {children}
+    </MiniAppContext.Provider>
+  );
+}
+
+export function useMiniApp() {
+  return useContext(MiniAppContext);
+}

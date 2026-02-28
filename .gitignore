@@ -1,0 +1,23 @@
+node_modules
+dist
+.env
+.env.local
+
+# Hardhat
+cache
+artifacts
+typechain-types
+
+# Agent
+agent/dist
+agent/.env
+
+# OS
+.DS_Store
+*.log
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo

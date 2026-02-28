@@ -1,0 +1,6 @@
+<svg width="192" height="192" viewBox="0 0 192 192" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="192" height="192" rx="48" fill="#06b6d4"/>
+  <circle cx="96" cy="70" r="20" fill="#0a0a0f"/>
+  <path d="M96 100 L76 140 L116 140 Z" fill="#0a0a0f"/>
+  <text x="96" y="170" font-family="JetBrains Mono, monospace" font-size="32" font-weight="bold" fill="#0a0a0f" text-anchor="middle">FW</text>
+</svg>

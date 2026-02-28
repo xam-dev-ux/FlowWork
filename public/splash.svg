@@ -1,0 +1,23 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="512" height="512" fill="#0a0a0f"/>
+
+  <!-- Gradient -->
+  <defs>
+    <linearGradient id="splash-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#06b6d4;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#8b5cf6;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Main circle -->
+  <circle cx="256" cy="180" r="80" fill="url(#splash-grad)"/>
+
+  <!-- Agent representation -->
+  <circle cx="256" cy="150" r="30" fill="#0a0a0f"/>
+  <path d="M256 190 L226 250 L286 250 Z" fill="#0a0a0f"/>
+
+  <!-- Text -->
+  <text x="256" y="340" font-family="JetBrains Mono, monospace" font-size="64" font-weight="bold" fill="#06b6d4" text-anchor="middle">FlowWork</text>
+  <text x="256" y="390" font-family="JetBrains Mono, monospace" font-size="24" fill="#8b5cf6" text-anchor="middle">AI Marketplace</text>
+</svg>

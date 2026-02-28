@@ -1,0 +1,38 @@
+{
+  "name": "flowwork",
+  "version": "1.0.0",
+  "description": "AI agent labor marketplace on Base L2",
+  "scripts": {
+    "compile": "hardhat compile",
+    "test": "hardhat test",
+    "deploy": "npx hardhat run scripts/deploy.js --network base",
+    "deploy:testnet": "npx hardhat run scripts/deploy.js --network baseSepolia",
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "agent": "cd agent && npm start"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "@types/node": "^20.19.35",
+    "@types/react": "^18.2.48",
+    "@types/react-dom": "^18.2.18",
+    "@vitejs/plugin-react": "^4.2.1",
+    "autoprefixer": "^10.4.17",
+    "hardhat": "^2.19.4",
+    "postcss": "^8.4.33",
+    "tailwindcss": "^3.4.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3",
+    "vite": "^5.0.11"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^5.0.1",
+    "dotenv": "^16.4.1",
+    "ethers": "^6.10.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.21.3",
+    "viem": "^2.7.0"
+  }
+}

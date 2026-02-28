@@ -1,0 +1,10 @@
+{
+  "_comment": "Este archivo ya no es necesario con el nuevo formato de Farcaster Frames",
+  "_note": "Los meta tags en index.html reemplazan este archivo",
+  "_see": "https://docs.farcaster.xyz/developers/frames/v2/spec",
+  "accountAssociation": {
+    "header": "",
+    "payload": "",
+    "signature": ""
+  }
+}
