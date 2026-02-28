@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState, createElement } from "react";
 import type { ReactNode } from "react";
 
 interface MiniAppContextType {
@@ -55,7 +55,7 @@ export function MiniAppProvider(props: MiniAppProviderProps) {
 
   const value = { isReady, userAddress, openUrl };
 
-  return <MiniAppContext.Provider value={value}>{props.children}</MiniAppContext.Provider>;
+  return createElement(MiniAppContext.Provider, { value }, props.children);
 }
 
 export function useMiniApp() {
