@@ -3,8 +3,8 @@
   "_note": "Los meta tags en index.html reemplazan este archivo",
   "_see": "https://docs.farcaster.xyz/developers/frames/v2/spec",
   "accountAssociation": {
-    "header": "",
-    "payload": "",
-    "signature": ""
+    "header": "eyJmaWQiOjU4MDczOCwidHlwZSI6ImN1c3RvZHkiLCJrZXkiOiIweDEwOUM5ZTgwMTNFY2U4ODZENGY4QUUyNjkyNTRkZTkzMEFFZmNkNDQifQ",
+    "payload": "eyJkb21haW4iOiJmbG93LXdvcmsteGkudmVyY2VsLmFwcCJ9",
+    "signature": "Y47eA2C7Gz82fmN1tWnFNzLWysH6apluA77zX5qlLh5q9DXQCRenkFa6bWaoY9zRZCfcueRx1LTem8Ozdj7Txhs="
   }
 }
