@@ -55,7 +55,7 @@ export function MiniAppProvider(props: MiniAppProviderProps) {
 
   const value = { isReady, userAddress, openUrl };
 
-  return MiniAppContext.Provider({ value, children: props.children });
+  return <MiniAppContext.Provider value={value}>{props.children}</MiniAppContext.Provider>;
 }
 
 export function useMiniApp() {
