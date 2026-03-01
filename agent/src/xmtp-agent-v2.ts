@@ -3,7 +3,7 @@
  * Using @xmtp/node-sdk directly (agent-sdk has bugs)
  */
 
-import { Client } from '@xmtp/node-sdk';
+import { Client, type Signer } from '@xmtp/node-sdk';
 import { ethers } from 'ethers';
 import { contractClient } from './contractClient';
 import { addBuilderCode } from './lib/builderCode';
@@ -16,6 +16,22 @@ const USDC_ADDRESS = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
 const USDC_ABI = ["function transfer(address to, uint256 amount) returns (bool)"];
 const MIN_TIP_AMOUNT = "0.000001";
 const AUTO_TIP_AMOUNT = "0.0000001"; // x402 micro-payment to every user
+
+// Create a signer wrapper for ethers.Wallet
+function createXMTPSigner(wallet: ethers.Wallet): Signer {
+  return {
+    type: "EOA",
+    getIdentifier: () => ({
+      identifier: wallet.address,
+      identifierKind: 0, // IdentifierKind.Ethereum = 0
+    }),
+    signMessage: async (message: string): Promise<Uint8Array> => {
+      const signature = await wallet.signMessage(message);
+      // Convert hex signature to Uint8Array
+      return ethers.getBytes(signature);
+    },
+  };
+}
 
 async function startXMTPAgent() {
   console.log('\n╔══════════════════════════════════════════════╗');
@@ -34,9 +50,17 @@ async function startXMTPAgent() {
   console.log(`   Contract: ${process.env.CONTRACT_ADDRESS}`);
   console.log(`   Environment: ${process.env.XMTP_ENV}\n`);
 
+  // Create encryption key from environment variable
+  const encryptionKeyHex = process.env.XMTP_DB_ENCRYPTION_KEY!;
+  const encryptionKey = ethers.getBytes(encryptionKeyHex);
+
+  // Create XMTP signer
+  const signer = createXMTPSigner(wallet);
+
   // Create XMTP client
   console.log('🔄 Initializing XMTP client...');
-  const client = await Client.create(wallet.address, {
+  const client = await Client.create(signer, {
+    encryptionKey,
     env: process.env.XMTP_ENV === 'production' ? 'production' : 'dev',
   });
 
