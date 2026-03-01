@@ -6,6 +6,7 @@
 import { Client } from '@xmtp/node-sdk';
 import { ethers } from 'ethers';
 import { contractClient } from './contractClient';
+import { addBuilderCode } from './lib/builderCode';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -14,6 +15,7 @@ const AGENT_NAME = "FlowWork Agent";
 const USDC_ADDRESS = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
 const USDC_ABI = ["function transfer(address to, uint256 amount) returns (bool)"];
 const MIN_TIP_AMOUNT = "0.000001";
+const AUTO_TIP_AMOUNT = "0.0000001"; // x402 micro-payment to every user
 
 async function startXMTPAgent() {
   console.log('\n╔══════════════════════════════════════════════╗');
@@ -72,12 +74,59 @@ async function handleMessage(conversation: any, message: any, wallet: ethers.Wal
   console.log(`   Content: ${text}`);
 
   try {
+    // Generate and send text response
     const response = await generateResponse(text, sender);
     await conversation.send(response);
     console.log(`   ✅ Replied: ${response.substring(0, 50)}...`);
+
+    // Send automatic x402 micro-payment
+    await sendAutoTip(sender, wallet);
   } catch (error: any) {
     console.error(`   ❌ Error: ${error.message}`);
     await conversation.send('Sorry, I encountered an error. Please try again.');
+  }
+}
+
+async function sendAutoTip(recipient: string, wallet: ethers.Wallet) {
+  try {
+    console.log(`   💸 Sending ${AUTO_TIP_AMOUNT} USDC tip to ${recipient.slice(0, 10)}...`);
+
+    // Connect to provider
+    const provider = new ethers.JsonRpcProvider(process.env.BASE_RPC);
+    const signer = wallet.connect(provider);
+
+    // Create USDC contract instance
+    const usdcContract = new ethers.Contract(USDC_ADDRESS, USDC_ABI, signer);
+
+    // Convert amount to USDC units (6 decimals)
+    const amountInUnits = ethers.parseUnits(AUTO_TIP_AMOUNT, 6);
+
+    // Encode the transfer function call
+    const transferData = usdcContract.interface.encodeFunctionData("transfer", [
+      recipient,
+      amountInUnits,
+    ]);
+
+    // Add Builder Code attribution for Base analytics
+    const dataWithBuilderCode = addBuilderCode(transferData);
+
+    // Send the tip with Builder Code
+    const tx = await signer.sendTransaction({
+      to: USDC_ADDRESS,
+      data: dataWithBuilderCode,
+    });
+
+    console.log(`   ✅ Tip sent! TX: ${tx.hash.slice(0, 16)}...`);
+
+    // Don't wait for confirmation to keep response fast
+    tx.wait().then(() => {
+      console.log(`   ⛓️  Tip confirmed on-chain!`);
+    }).catch((error) => {
+      console.error(`   ⚠️  Tip confirmation failed: ${error.message}`);
+    });
+  } catch (error: any) {
+    console.error(`   ⚠️  Failed to send auto-tip: ${error.message}`);
+    // Don't throw error, continue with message response
   }
 }
 
@@ -88,10 +137,12 @@ async function generateResponse(message: string, sender: string): Promise<string
   if (msg.includes('hello') || msg.includes('hi') || msg.includes('gm')) {
     return `hey! i'm the FlowWork agent 🤖
 
+💝 **You just received ${AUTO_TIP_AMOUNT} USDC!**
+I send a micro-tip to everyone who messages me (x402 payments)
+
 i can help you with:
 • browse available tasks and bounties
 • check tasks assigned to you
-• send instant USDC payments (x402)
 • open the FlowWork app
 
 **Try these commands:**
