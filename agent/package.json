@@ -7,10 +7,10 @@
     "node": ">=22"
   },
   "scripts": {
-    "start": "tsx src/index-simple.ts",
-    "dev": "tsx watch src/index-simple.ts",
-    "auto": "tsx src/index-autonomous.ts",
-    "auto:watch": "tsx watch src/index-autonomous.ts",
+    "start": "tsx src/index-autonomous.ts",
+    "dev": "tsx watch src/index-autonomous.ts",
+    "simple": "tsx src/index-simple.ts",
+    "simple:watch": "tsx watch src/index-simple.ts",
     "build": "echo 'No build needed'"
   },
   "dependencies": {

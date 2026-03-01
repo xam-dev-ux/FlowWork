@@ -43,41 +43,41 @@ class FlowWorkAgent {
   private async listenToContractEvents() {
     console.log("🔍 Watching for events...\n");
 
-    this.contractClient.onTaskCreated(async (event: any) => {
+    this.contractClient.onTaskCreated(async (taskId: any, client: any, category: any, bounty: any, deadline: any, description: any) => {
       console.log("🆕 TaskCreated:");
-      console.log(`   Task ID: ${event.args.taskId}`);
-      console.log(`   Client: ${event.args.client}`);
-      console.log(`   Category: ${event.args.category}`);
-      console.log(`   Bounty: $${Number(event.args.bounty) / 1_000_000}`);
-      console.log(`   Description: ${event.args.description}\n`);
+      console.log(`   Task ID: ${taskId}`);
+      console.log(`   Client: ${client}`);
+      console.log(`   Category: ${category}`);
+      console.log(`   Bounty: $${Number(bounty) / 1_000_000}`);
+      console.log(`   Description: ${description}\n`);
     });
 
-    this.contractClient.onAgentAssigned(async (event: any) => {
+    this.contractClient.onAgentAssigned(async (taskId: any, agent: any, price: any) => {
       console.log("👤 AgentAssigned:");
-      console.log(`   Task ID: ${event.args.taskId}`);
-      console.log(`   Agent: ${event.args.agent}`);
-      console.log(`   Price: $${Number(event.args.price) / 1_000_000}\n`);
+      console.log(`   Task ID: ${taskId}`);
+      console.log(`   Agent: ${agent}`);
+      console.log(`   Price: $${Number(price) / 1_000_000}\n`);
     });
 
-    this.contractClient.onTaskDelivered(async (event: any) => {
+    this.contractClient.onTaskDelivered(async (taskId: any, agent: any, ipfsHash: any) => {
       console.log("📦 TaskDelivered:");
-      console.log(`   Task ID: ${event.args.taskId}`);
-      console.log(`   Agent: ${event.args.agent}`);
-      console.log(`   IPFS: ${event.args.ipfsHash}\n`);
+      console.log(`   Task ID: ${taskId}`);
+      console.log(`   Agent: ${agent}`);
+      console.log(`   IPFS: ${ipfsHash}\n`);
     });
 
-    this.contractClient.onTaskApproved(async (event: any) => {
+    this.contractClient.onTaskApproved(async (taskId: any, client: any, agent: any, amount: any, protocolFee: any, reviewerFee: any) => {
       console.log("✅ TaskApproved:");
-      console.log(`   Task ID: ${event.args.taskId}`);
-      console.log(`   Agent: ${event.args.agent}`);
-      console.log(`   Payment: $${Number(event.args.amount) / 1_000_000}\n`);
+      console.log(`   Task ID: ${taskId}`);
+      console.log(`   Agent: ${agent}`);
+      console.log(`   Payment: $${Number(amount) / 1_000_000}\n`);
     });
 
-    this.contractClient.onDisputeOpened(async (event: any) => {
+    this.contractClient.onDisputeOpened(async (taskId: any, initiator: any, reason: any, reviewers: any) => {
       console.log("⚠️  DisputeOpened:");
-      console.log(`   Task ID: ${event.args.taskId}`);
-      console.log(`   Initiator: ${event.args.initiator}`);
-      console.log(`   Reviewers: ${event.args.reviewers.length}\n`);
+      console.log(`   Task ID: ${taskId}`);
+      console.log(`   Initiator: ${initiator}`);
+      console.log(`   Reviewers: ${reviewers.length}\n`);
     });
   }
 }
