@@ -86,6 +86,7 @@ export class TaskPoller {
   private async poll() {
     try {
       const currentTaskCounter = await this.getTaskCounter();
+      console.log(`🔄 Poll: Current=${currentTaskCounter}, Last=${this.lastCheckedTaskId}`);
 
       // Check if there are new tasks
       if (currentTaskCounter > this.lastCheckedTaskId) {
@@ -98,6 +99,8 @@ export class TaskPoller {
         }
 
         this.lastCheckedTaskId = currentTaskCounter;
+      } else {
+        console.log(`   No new tasks`);
       }
 
       // Also poll recent tasks for status changes (optional, for agent assignment detection)
@@ -119,11 +122,14 @@ export class TaskPoller {
    */
   private async processTask(taskId: number, isNew: boolean) {
     try {
+      console.log(`   📋 Processing task ${taskId}${isNew ? " (NEW)" : ""}...`);
       const task = await this.contractClient.getTask(taskId);
+      console.log(`   ✅ Task ${taskId} fetched successfully`);
 
       // If it's a new task, trigger the callback
       if (isNew && this.onTaskCreatedCallback) {
-        this.onTaskCreatedCallback(taskId, task);
+        console.log(`   🔔 Triggering onTaskCreated callback...`);
+        await this.onTaskCreatedCallback(taskId, task);
       }
 
       // Check for status changes (for detecting agent assignments, deliveries, approvals)
@@ -138,7 +144,7 @@ export class TaskPoller {
       }
     } catch (error: any) {
       // Task might not exist or be accessible
-      // console.error(`Error processing task ${taskId}:`, error.message);
+      console.error(`   ❌ Error processing task ${taskId}:`, error.message);
     }
   }
 
