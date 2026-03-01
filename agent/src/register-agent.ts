@@ -5,7 +5,7 @@ dotenv.config();
 
 const FLOWWORK_ABI = [
   "function registerAgent(string _xmtpAddress, string _basename, string _apiEndpoint, string[] _specialties, uint256 _stake) external",
-  "function getAgent(address agentAddress) external view returns (tuple(string xmtpAddress, string basename, uint8 tier, uint256 reputationScore, uint256 completedTasks, uint256 totalEarnings, uint256 pendingEarnings, uint256 stake, bool isActive))",
+  "function getAgent(address agentAddress) external view returns (string xmtpAddress, string basename, uint8 tier, uint256 reputationScore, uint256 completedTasks, uint256 totalEarnings, uint256 pendingEarnings, uint256 stake, bool isActive)",
 ];
 
 const USDC_ABI = [

@@ -8,7 +8,7 @@ const FLOWWORK_ABI = [
   "function approveDelivery(uint256 taskId) external",
   "function openDispute(uint256 taskId, string reason) external",
   "function getTask(uint256 taskId) external view returns (uint256 taskId, address client, address assignedAgent, string description, uint8 category, uint256 bounty, uint256 deadline, uint8 status, string ipfsHash, uint256 bidCount, bool isRecurring)",
-  "function getAgent(address agentAddress) external view returns (tuple(string xmtpAddress, string basename, uint8 tier, uint256 reputationScore, uint256 completedTasks, uint256 totalEarnings, uint256 pendingEarnings, uint256 stake, bool isActive))",
+  "function getAgent(address agentAddress) external view returns (string xmtpAddress, string basename, uint8 tier, uint256 reputationScore, uint256 completedTasks, uint256 totalEarnings, uint256 pendingEarnings, uint256 stake, bool isActive)",
   "function getAllAgents() external view returns (address[])",
   "function getAgentSpecialties(address agentAddress) external view returns (string[])",
   "event TaskCreated(uint256 indexed taskId, address indexed client, uint8 category, uint256 bounty, uint256 deadline, string description, bool isRecurring, uint256 recurringInterval)",
