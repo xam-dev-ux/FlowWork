@@ -1,5 +1,5 @@
 export const CONTRACT_ADDRESS = import.meta.env.VITE_CONTRACT_ADDRESS || "";
-export const BASE_RPC = import.meta.env.VITE_BASE_RPC || "https://mainnet.base.org";
+export const BASE_RPC = import.meta.env.VITE_BASE_RPC || "https://base-mainnet.public.blastapi.io";
 export const CHAIN_ID = parseInt(import.meta.env.VITE_CHAIN_ID || "8453");
 
 export const FLOWWORK_ABI = [

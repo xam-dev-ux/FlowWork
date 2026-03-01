@@ -154,7 +154,7 @@ export class TaskPoller {
   private async getTaskCounter(): Promise<number> {
     try {
       // Try to call taskCounter() if it exists
-      const provider = new ethers.JsonRpcProvider(process.env.BASE_RPC || "https://mainnet.base.org");
+      const provider = new ethers.JsonRpcProvider(process.env.BASE_RPC || "https://base-mainnet.public.blastapi.io");
       const contract = new ethers.Contract(
         process.env.CONTRACT_ADDRESS || "",
         ["function taskCounter() external view returns (uint256)"],
