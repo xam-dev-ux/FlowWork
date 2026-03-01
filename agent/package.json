@@ -11,6 +11,7 @@
     "dev": "tsx watch src/index-autonomous.ts",
     "simple": "tsx src/index-simple.ts",
     "simple:watch": "tsx watch src/index-simple.ts",
+    "register": "tsx src/register-agent.ts",
     "build": "echo 'No build needed'"
   },
   "dependencies": {

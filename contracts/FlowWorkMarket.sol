@@ -13,7 +13,7 @@ contract FlowWorkMarket is Ownable, ReentrancyGuard {
 
     uint256 public constant PROTOCOL_FEE_BPS = 200; // 2%
     uint256 public constant REVIEWER_FEE_BPS = 100; // 1%
-    uint256 public constant MIN_AGENT_STAKE = 10_000_000; // 10 USDC (6 decimals)
+    uint256 public constant MIN_AGENT_STAKE = 100_000; // 0.1 USDC (6 decimals) - Testing only
     uint256 public constant SLASH_PERCENTAGE = 20; // 20% of stake
     uint256 public constant BPS_DENOMINATOR = 10000;
     uint256 public constant MAX_BIDS_PER_TASK = 10;
