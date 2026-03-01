@@ -10,6 +10,11 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+// USDC Contract on Base
+const USDC_ADDRESS = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
+const USDC_ABI = ["function transfer(address to, uint256 amount) returns (bool)"];
+const MIN_TIP_AMOUNT = "0.000001"; // Minimum x402 payment
+
 const AGENT_NAME = "FlowWork Agent";
 const AGENT_ADDRESS = process.env.XMTP_WALLET_KEY
   ? new ethers.Wallet(process.env.XMTP_WALLET_KEY).address
@@ -21,7 +26,8 @@ const ACTION_IDS = {
   MY_TASKS: 'my_tasks',
   TASK_DETAILS: 'task_details',
   BID_TASK: 'bid_task',
-  TIP_AGENT: 'tip_agent',
+  SEND_TIP: 'send_tip',
+  OPEN_APP: 'open_app',
 };
 
 async function startXMTPAgent() {
@@ -65,8 +71,10 @@ async function startXMTPAgent() {
         await sendMyTasks(ctx, senderAddress);
       } else if (message.includes('help')) {
         await sendHelpMessage(ctx);
-      } else if (message.includes('tip')) {
-        await sendTipInfo(ctx);
+      } else if (message.includes('tip') || message.includes('pay')) {
+        await handleTipRequest(ctx, message, senderAddress);
+      } else if (message.includes('app') || message.includes('website')) {
+        await sendAppLink(ctx);
       } else {
         await sendQuickActions(ctx);
       }
@@ -97,8 +105,11 @@ async function startXMTPAgent() {
         case ACTION_IDS.MY_TASKS:
           await sendMyTasks(ctx, ctx.conversation.peerAddress);
           break;
-        case ACTION_IDS.TIP_AGENT:
-          await sendTipInfo(ctx);
+        case ACTION_IDS.SEND_TIP:
+          await sendTipActions(ctx);
+          break;
+        case ACTION_IDS.OPEN_APP:
+          await sendAppLink(ctx);
           break;
         default:
           await ctx.sendText('Action not recognized. Please try again.');
@@ -138,8 +149,13 @@ async function sendWelcomeMessage(ctx: any) {
 i can help you with:
 • browse available tasks and bounties
 • check tasks assigned to you
-• get task details and bid on work
-• send tips to top performers
+• send instant USDC payments (x402)
+• open the FlowWork app directly
+
+**Try these commands:**
+"tasks" - See available work
+"tip 5 to 0x..." - Send 5 USDC payment
+"app" - Open FlowWork
 
 what would you like to do?`;
 
@@ -167,8 +183,13 @@ async function sendQuickActions(ctx: any) {
         style: 'secondary',
       },
       {
-        id: ACTION_IDS.TIP_AGENT,
-        label: '💝 Send a Tip',
+        id: ACTION_IDS.SEND_TIP,
+        label: '💰 Send Payment (x402)',
+        style: 'secondary',
+      },
+      {
+        id: ACTION_IDS.OPEN_APP,
+        label: '🌐 Open FlowWork App',
         style: 'secondary',
       },
     ],
@@ -283,8 +304,13 @@ async function sendHelpMessage(ctx: any) {
 • "hello" or "gm" - Get started
 • "tasks" or "available" - See open tasks
 • "my tasks" - View your assigned tasks
-• "tip" - Learn about tipping agents
+• "tip [amount] to [address]" - Send USDC payment (x402)
+• "app" or "website" - Open FlowWork app
 • "help" - Show this message
+
+**Payment Examples:**
+• "tip 5 to 0x742d35..." - Send 5 USDC
+• "pay 0.1 to 0x742d35..." - Send 0.1 USDC
 
 **Quick Actions:**
 Use the buttons below to interact quickly!
@@ -297,21 +323,131 @@ Visit https://flowwork.vercel.app for the full app.`;
 }
 
 /**
- * Send tip information
+ * Handle tip/payment requests with x402
  */
-async function sendTipInfo(ctx: any) {
-  const tipText = `💝 Send Tips via x402
+async function handleTipRequest(ctx: any, message: string, senderAddress: string) {
+  // Check if message contains amount and recipient
+  // Format: "tip 5 to 0x..." or "pay 10 usdc to 0x..."
+  const amountMatch = message.match(/(\d+\.?\d*)/);
+  const addressMatch = message.match(/(0x[a-fA-F0-9]{40})/);
 
-You can tip top-performing agents directly through the FlowWork app:
+  if (amountMatch && addressMatch) {
+    const amount = amountMatch[1];
+    const recipient = addressMatch[1];
+    await sendPayment(ctx, amount, recipient, senderAddress);
+  } else {
+    // Show tip options with Quick Actions
+    await sendTipActions(ctx);
+  }
+}
 
-1. Visit https://flowwork.vercel.app
-2. Browse agents on the leaderboard
-3. Click "Tip Agent" on any agent card
-4. Send instant USDC tips (min: $0.000001)
+/**
+ * Send payment using x402 protocol
+ */
+async function sendPayment(ctx: any, amount: string, recipient: string, senderAddress: string) {
+  try {
+    console.log(`💰 Processing payment: ${amount} USDC to ${recipient} from ${senderAddress}`);
 
-All tips go directly to agents with zero platform fees! 🎉`;
+    const amountNum = parseFloat(amount);
+    const minAmount = parseFloat(MIN_TIP_AMOUNT);
 
-  await ctx.sendText(tipText);
+    if (isNaN(amountNum) || amountNum < minAmount) {
+      await ctx.sendText(`❌ Invalid amount. Minimum is ${MIN_TIP_AMOUNT} USDC.`);
+      return;
+    }
+
+    // Create payment request
+    const wallet = new ethers.Wallet(process.env.XMTP_WALLET_KEY!);
+    const provider = new ethers.JsonRpcProvider(process.env.BASE_RPC);
+    const signer = wallet.connect(provider);
+
+    const usdcContract = new ethers.Contract(USDC_ADDRESS, USDC_ABI, signer);
+    const amountInUnits = ethers.parseUnits(amount, 6); // USDC has 6 decimals
+
+    // Send confirmation message
+    await ctx.sendText(`⏳ Processing payment of ${amount} USDC to ${recipient.slice(0, 10)}...`);
+
+    // Execute transfer
+    const tx = await usdcContract.transfer(recipient, amountInUnits);
+    console.log(`   Transaction sent: ${tx.hash}`);
+
+    await ctx.sendText(`✅ Payment sent! Transaction: https://basescan.org/tx/${tx.hash}`);
+
+    // Wait for confirmation
+    await tx.wait();
+    console.log(`   Transaction confirmed`);
+
+    await ctx.sendText(`🎉 Payment of ${amount} USDC confirmed on-chain!`);
+  } catch (error: any) {
+    console.error('Error sending payment:', error);
+    await ctx.sendText(`❌ Payment failed: ${error.message || 'Unknown error'}`);
+  }
+}
+
+/**
+ * Send tip actions with preset amounts
+ */
+async function sendTipActions(ctx: any) {
+  await ctx.sendText(`💰 x402 Instant Payments
+
+Send USDC payments directly from this chat!
+
+**How to send:**
+Type: "tip [amount] to [address]"
+Example: "tip 5 to 0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb"
+
+**Minimum:** ${MIN_TIP_AMOUNT} USDC
+**Network:** Base L2
+**Fees:** Zero platform fees! Only gas.
+
+Or visit the app to send tips with a nice UI:`);
+
+  await sendAppLink(ctx);
+}
+
+/**
+ * Send app link with Mini App embed
+ */
+async function sendAppLink(ctx: any) {
+  const appUrl = "https://flowwork.vercel.app";
+  const deeplink = "cbwallet://dapp?url=https://flowwork.vercel.app";
+
+  const message = `🌐 **FlowWork - AI Agent Marketplace**
+
+Browse tasks, hire agents, and send instant payments!
+
+**Open in Base App:**
+${deeplink}
+
+**Or visit directly:**
+${appUrl}
+
+Features:
+• Browse available tasks with bounties
+• Hire AI agents to complete work
+• Send instant USDC tips (x402)
+• Track agent reputation and earnings
+• Zero platform fees`;
+
+  await ctx.sendText(message);
+
+  // Send Quick Actions for easy access
+  await ctx.sendActions({
+    id: `app_link_${Date.now()}`,
+    description: 'Quick actions:',
+    actions: [
+      {
+        id: 'open_browser',
+        label: '🌐 Open in Browser',
+        style: 'primary',
+      },
+      {
+        id: 'back_menu',
+        label: '⬅️ Back to Menu',
+        style: 'secondary',
+      },
+    ],
+  });
 }
 
 // Start the agent
