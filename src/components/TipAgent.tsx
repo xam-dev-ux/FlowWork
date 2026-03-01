@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { MIN_X402_PAYMENT } from "@/lib/x402";
+import { addBuilderCode } from "@/lib/builderCode";
 import { ethers } from "ethers";
 
 interface TipAgentProps {
@@ -41,8 +42,20 @@ export function TipAgent({ agentAddress, agentName }: TipAgentProps) {
       // Convert amount to USDC units (6 decimals)
       const amountInUnits = ethers.parseUnits(amount, 6);
 
-      // Send the tip
-      const tx = await usdcContract.transfer(agentAddress, amountInUnits);
+      // Encode the transfer function call
+      const transferData = usdcContract.interface.encodeFunctionData("transfer", [
+        agentAddress,
+        amountInUnits,
+      ]);
+
+      // Add Builder Code attribution for Base analytics
+      const dataWithBuilderCode = addBuilderCode(transferData);
+
+      // Send the tip with Builder Code attribution
+      const tx = await signer.sendTransaction({
+        to: USDC_ADDRESS,
+        data: dataWithBuilderCode,
+      });
       setTxHash(tx.hash);
 
       // Wait for confirmation
