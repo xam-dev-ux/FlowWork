@@ -51,8 +51,9 @@ async function startXMTPAgent() {
   console.log(`   Environment: ${process.env.XMTP_ENV}\n`);
 
   // Create encryption key from environment variable
-  const encryptionKeyHex = process.env.XMTP_DB_ENCRYPTION_KEY!;
-  const encryptionKey = ethers.getBytes(encryptionKeyHex);
+  // Convert the string to UTF-8 bytes
+  const encryptionKeyString = process.env.XMTP_DB_ENCRYPTION_KEY!;
+  const encryptionKey = ethers.toUtf8Bytes(encryptionKeyString);
 
   // Create XMTP signer
   const signer = createXMTPSigner(wallet);
