@@ -48,7 +48,9 @@ async function startXMTPAgent() {
     const message = ctx.message.content.toLowerCase();
     const senderAddress = ctx.conversation.peerAddress;
 
-    console.log(`📨 Message from ${senderAddress}: ${message}`);
+    console.log(`\n📨 Message from ${senderAddress}: ${message}`);
+    console.log(`   Conversation ID: ${ctx.conversation.id}`);
+    console.log(`   Timestamp: ${new Date().toISOString()}`);
 
     // React to show message received
     await ctx.react('👀');
@@ -72,7 +74,9 @@ async function startXMTPAgent() {
       // Mark as read
       await ctx.react('✅');
     } catch (error) {
-      console.error('Error handling message:', error);
+      console.error('\n❌ Error handling message:', error);
+      console.error(`   From: ${senderAddress}`);
+      console.error(`   Message: ${message}`);
       await ctx.sendText('Sorry, I encountered an error processing your request. Please try again.');
       await ctx.react('❌');
     }
@@ -139,6 +143,7 @@ i can help you with:
 
 what would you like to do?`;
 
+  console.log('💬 Sending welcome message');
   await ctx.sendText(welcomeText);
   await sendQuickActions(ctx);
 }
@@ -174,9 +179,11 @@ async function sendQuickActions(ctx: any) {
  * Fetch and send available tasks
  */
 async function sendAvailableTasks(ctx: any) {
+  console.log('📋 Fetching available tasks...');
   try {
     const taskCounter = await contractClient.taskCounter();
     const taskCount = Number(taskCounter);
+    console.log(`   Found ${taskCount} total tasks`);
 
     if (taskCount === 0) {
       await ctx.sendText('No tasks available yet. Check back soon! 🔄');
