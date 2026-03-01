@@ -69,33 +69,34 @@ async function startXMTPAgent() {
   console.log(`🎯 Agent Address: ${wallet.address}`);
   console.log(`📱 Message me via Base App!\n`);
 
-  // Listen for conversations
+  // Sync conversations first
   console.log('👂 Listening for messages...\n');
+  await client.conversations.sync();
 
   const conversations = await client.conversations.list();
-  console.log(`💬 Found ${conversations.length} existing conversations`);
+  console.log(`💬 Found ${conversations.length} existing conversations\n`);
 
-  // Stream new conversations
-  for await (const conversation of await client.conversations.stream()) {
-    console.log(`📨 New conversation from: ${conversation.peerAddress}`);
+  // Stream all messages from all conversations
+  const stream = await client.conversations.streamAllMessages();
 
-    // Stream messages in this conversation
-    (async () => {
-      for await (const message of await conversation.streamMessages()) {
-        await handleMessage(conversation, message, wallet);
-      }
-    })();
+  for await (const message of stream) {
+    // Skip messages from self
+    if (message.senderInboxId === client.inboxId) continue;
+
+    // Get the conversation this message belongs to
+    const conversation = await client.conversations.getConversationById(message.conversationId);
+
+    // Handle the message
+    await handleMessage(conversation, message, wallet, client);
   }
 }
 
-async function handleMessage(conversation: any, message: any, wallet: ethers.Wallet) {
-  // Skip messages from self
-  if (message.senderAddress === wallet.address) return;
+async function handleMessage(conversation: any, message: any, wallet: ethers.Wallet, client: any) {
+  // Get message content and sender info
+  const text = message.content?.text || message.content || '';
+  const sender = conversation.peerAddress;
 
-  const text = message.content;
-  const sender = message.senderAddress;
-
-  console.log(`\n📨 Message from ${sender.slice(0, 10)}...`);
+  console.log(`\n📨 Message from ${sender?.slice(0, 10)}...`);
   console.log(`   Content: ${text}`);
 
   try {
