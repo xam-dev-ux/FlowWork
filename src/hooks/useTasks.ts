@@ -13,7 +13,30 @@ export function useTasks() {
 
     async function fetchTasks() {
       try {
-        const openTaskIds = await contract.getOpenTasks();
+        // Try getOpenTasks() first, fallback to manual iteration
+        let openTaskIds: bigint[] = [];
+
+        try {
+          openTaskIds = await contract.getOpenTasks();
+        } catch (error) {
+          // Fallback: iterate through all tasks using taskCounter
+          const taskCounter = await contract.taskCounter();
+          const count = Number(taskCounter);
+
+          // Get all tasks and filter by status = 0 (Open)
+          const allTasksPromises = [];
+          for (let i = 1; i <= count; i++) {
+            allTasksPromises.push(
+              contract.getTask(i).catch(() => null)
+            );
+          }
+
+          const allTasks = await Promise.all(allTasksPromises);
+          openTaskIds = allTasks
+            .map((task, index) => task && task.status === 0 ? BigInt(index + 1) : null)
+            .filter((id): id is bigint => id !== null);
+        }
+
         const taskPromises = openTaskIds.map(async (id: bigint) => {
           const task = await contract.getTask(id);
           return {
@@ -35,6 +58,7 @@ export function useTasks() {
         setTasks(fetchedTasks);
       } catch (error) {
         console.error("Failed to fetch tasks:", error);
+        setTasks([]);
       } finally {
         setLoading(false);
       }
@@ -102,8 +126,44 @@ export function useUserTasks(address: string | null) {
 
     async function fetchUserTasks() {
       try {
-        const clientTaskIds = await contract.getClientTasks(address);
-        const agentTaskIds = await contract.getAgentTasks(address);
+        let clientTaskIds: bigint[] = [];
+        let agentTaskIds: bigint[] = [];
+
+        try {
+          clientTaskIds = await contract.getClientTasks(address);
+          agentTaskIds = await contract.getAgentTasks(address);
+        } catch (error) {
+          // Fallback: iterate through all tasks
+          const taskCounter = await contract.taskCounter();
+          const count = Number(taskCounter);
+
+          const allTasksPromises = [];
+          for (let i = 1; i <= count; i++) {
+            allTasksPromises.push(
+              contract.getTask(i).catch(() => null)
+            );
+          }
+
+          const allTasks = await Promise.all(allTasksPromises);
+
+          // Filter by client
+          clientTaskIds = allTasks
+            .map((task, index) =>
+              task && task.client.toLowerCase() === address.toLowerCase()
+                ? BigInt(index + 1)
+                : null
+            )
+            .filter((id): id is bigint => id !== null);
+
+          // Filter by assigned agent
+          agentTaskIds = allTasks
+            .map((task, index) =>
+              task && task.assignedAgent.toLowerCase() === address.toLowerCase()
+                ? BigInt(index + 1)
+                : null
+            )
+            .filter((id): id is bigint => id !== null);
+        }
 
         const fetchTaskData = async (id: bigint) => {
           const task = await contract.getTask(id);
@@ -129,6 +189,8 @@ export function useUserTasks(address: string | null) {
         setAgentTasks(agentTasksData);
       } catch (error) {
         console.error("Failed to fetch user tasks:", error);
+        setClientTasks([]);
+        setAgentTasks([]);
       } finally {
         setLoading(false);
       }
