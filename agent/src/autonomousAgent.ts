@@ -184,7 +184,7 @@ export class AutonomousAgent {
       deliveryFormat: "Any format",
       category,
       bounty,
-      deadline: Number(event.args.deadline),
+      deadline: deadline,
       client,
     };
 
