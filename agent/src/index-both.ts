@@ -23,7 +23,7 @@ const autonomousAgent = spawn('tsx', ['src/index-autonomous.ts'], {
 // Wait a bit before starting XMTP agent
 setTimeout(() => {
   console.log('\n💬 Starting XMTP Agent...\n');
-  const xmtpAgent = spawn('tsx', ['src/xmtp-agent.ts'], {
+  const xmtpAgent = spawn('tsx', ['src/xmtp-agent-v2.ts'], {
     stdio: 'inherit',
     env: process.env,
   });
