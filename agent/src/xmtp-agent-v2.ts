@@ -92,11 +92,19 @@ async function startXMTPAgent() {
 }
 
 async function handleMessage(conversation: any, message: any, wallet: ethers.Wallet, client: any) {
-  // Get message content and sender info
+  // Get message content
   const text = message.content?.text || message.content || '';
-  const sender = conversation.peerAddress;
 
-  console.log(`\n📨 Message from ${sender?.slice(0, 10)}...`);
+  // Get sender's Ethereum address from inbox ID
+  const inboxState = await client.preferences.inboxStateFromInboxIds([message.senderInboxId]);
+  const sender = inboxState[0]?.identifiers[0]?.identifier;
+
+  if (!sender) {
+    console.log('\n⚠️  Could not determine sender address');
+    return;
+  }
+
+  console.log(`\n📨 Message from ${sender.slice(0, 10)}...`);
   console.log(`   Content: ${text}`);
 
   try {
