@@ -76,24 +76,50 @@ async function startXMTPAgent() {
   const conversations = await client.conversations.list();
   console.log(`💬 Found ${conversations.length} existing conversations\n`);
 
+  // Track processed messages to avoid duplicates
+  const processedMessages = new Set<string>();
+
   // Stream all messages from all conversations
   const stream = await client.conversations.streamAllMessages();
 
   for await (const message of stream) {
-    // Skip messages from self
-    if (message.senderInboxId === client.inboxId) continue;
+    try {
+      // Skip messages from self
+      if (message.senderInboxId === client.inboxId) {
+        console.log('⏭️  Skipping own message');
+        continue;
+      }
 
-    // Get the conversation this message belongs to
-    const conversation = await client.conversations.getConversationById(message.conversationId);
+      // Skip if already processed
+      const messageId = message.id || `${message.conversationId}-${message.sentAt}`;
+      if (processedMessages.has(messageId)) {
+        console.log('⏭️  Skipping duplicate message');
+        continue;
+      }
 
-    // Handle the message
-    await handleMessage(conversation, message, wallet, client);
+      // Mark as processed
+      processedMessages.add(messageId);
+
+      // Get the conversation this message belongs to
+      const conversation = await client.conversations.getConversationById(message.conversationId);
+
+      // Handle the message
+      await handleMessage(conversation, message, wallet, client);
+    } catch (error: any) {
+      console.error(`❌ Error processing message: ${error.message}`);
+    }
   }
 }
 
 async function handleMessage(conversation: any, message: any, wallet: ethers.Wallet, client: any) {
   // Get message content
   const text = message.content?.text || message.content || '';
+
+  // Skip empty messages or non-text content
+  if (!text || typeof text !== 'string' || text.trim().length === 0) {
+    console.log('\n⏭️  Skipping empty or non-text message');
+    return;
+  }
 
   // Get sender's Ethereum address from inbox ID
   const inboxState = await client.preferences.inboxStateFromInboxIds([message.senderInboxId]);
