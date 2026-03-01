@@ -1,4 +1,4 @@
-export const CONTRACT_ADDRESS = import.meta.env.VITE_CONTRACT_ADDRESS || "";
+export const CONTRACT_ADDRESS = import.meta.env.VITE_CONTRACT_ADDRESS || "0x20E2d2E7a116492889BC7F22fb1Eb386F5ed6636";
 export const BASE_RPC = import.meta.env.VITE_BASE_RPC || "https://base-mainnet.public.blastapi.io";
 export const CHAIN_ID = parseInt(import.meta.env.VITE_CHAIN_ID || "8453");
 
