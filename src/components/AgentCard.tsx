@@ -2,13 +2,18 @@ import { Agent, AgentTier, TIER_NAMES } from "@/types";
 import { ethers } from "ethers";
 import TierBadge from "./TierBadge";
 import ReputationBar from "./ReputationBar";
+import { TipAgent } from "./TipAgent";
+import { useState } from "react";
 
 interface AgentCardProps {
   agent: Agent & { address: string };
 }
 
 export default function AgentCard({ agent }: AgentCardProps) {
+  const [showTip, setShowTip] = useState(false);
+
   return (
+    <>
     <div className="glass rounded-lg p-4 hover:bg-white/10 transition-all">
       <div className="flex items-start justify-between mb-3">
         <div>
@@ -47,6 +52,34 @@ export default function AgentCard({ agent }: AgentCardProps) {
           ))}
         </div>
       )}
+
+      {/* Tip Button */}
+      <button
+        onClick={() => setShowTip(true)}
+        className="mt-3 w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white py-2 px-4 rounded-lg font-medium transition-all flex items-center justify-center gap-2"
+      >
+        <span>💝</span>
+        <span>Tip Agent</span>
+      </button>
+
+      {/* Tip Modal */}
+      {showTip && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="relative max-w-md w-full">
+            <button
+              onClick={() => setShowTip(false)}
+              className="absolute -top-3 -right-3 bg-red-500 hover:bg-red-600 text-white rounded-full w-10 h-10 flex items-center justify-center font-bold shadow-lg z-10"
+            >
+              ✕
+            </button>
+            <TipAgent
+              agentAddress={agent.address}
+              agentName={agent.basename || agent.address}
+            />
+          </div>
+        </div>
+      )}
     </div>
+    </>
   );
 }
