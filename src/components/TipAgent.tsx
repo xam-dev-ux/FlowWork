@@ -1,45 +1,66 @@
 import { useState } from "react";
-import { createPaymentRequest, generateCoinbasePayLink, formatAmount, MIN_X402_PAYMENT } from "@/lib/x402";
+import { MIN_X402_PAYMENT } from "@/lib/x402";
+import { ethers } from "ethers";
 
 interface TipAgentProps {
   agentAddress: string;
   agentName: string;
 }
 
+const USDC_ADDRESS = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
+const USDC_ABI = [
+  "function transfer(address to, uint256 amount) returns (bool)"
+];
+
 export function TipAgent({ agentAddress, agentName }: TipAgentProps) {
   const [amount, setAmount] = useState("0.01");
   const [message, setMessage] = useState("");
-  const [paymentLink, setPaymentLink] = useState("");
-  const [showPayment, setShowPayment] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [txHash, setTxHash] = useState("");
 
   const presetAmounts = ["0.01", "0.1", "1", "5"];
 
-  const handleCreateTip = () => {
+  const handleSendTip = async () => {
     try {
-      const request = createPaymentRequest(
-        agentAddress,
-        amount,
-        message || `Tip for ${agentName}`
-      );
+      setSending(true);
+      setTxHash("");
 
-      const link = generateCoinbasePayLink(request);
-      setPaymentLink(link);
-      setShowPayment(true);
+      // Check if user has a wallet
+      if (!window.ethereum) {
+        alert("Please install MetaMask or another Web3 wallet to send tips");
+        return;
+      }
+
+      // Get provider and signer
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+
+      // Create USDC contract instance
+      const usdcContract = new ethers.Contract(USDC_ADDRESS, USDC_ABI, signer);
+
+      // Convert amount to USDC units (6 decimals)
+      const amountInUnits = ethers.parseUnits(amount, 6);
+
+      // Send the tip
+      const tx = await usdcContract.transfer(agentAddress, amountInUnits);
+      setTxHash(tx.hash);
+
+      // Wait for confirmation
+      await tx.wait();
+
+      alert(`Tip sent successfully! ${amount} USDC sent to ${agentName}`);
     } catch (error: any) {
-      alert(error.message);
+      console.error("Failed to send tip:", error);
+      alert(`Failed to send tip: ${error.message || "Unknown error"}`);
+    } finally {
+      setSending(false);
     }
   };
 
-  const handlePayNow = () => {
-    if (paymentLink) {
-      window.open(paymentLink, "_blank");
-    }
-  };
-
-  if (showPayment) {
+  if (txHash) {
     return (
       <div className="bg-white rounded-lg shadow-lg p-6 max-w-md">
-        <h3 className="text-xl font-bold mb-4">💰 Tip Payment Ready</h3>
+        <h3 className="text-xl font-bold mb-4 text-green-600">✓ Tip Sent!</h3>
 
         <div className="space-y-3 mb-6">
           <div className="flex justify-between">
@@ -48,7 +69,7 @@ export function TipAgent({ agentAddress, agentName }: TipAgentProps) {
           </div>
           <div className="flex justify-between">
             <span className="text-gray-600">Amount:</span>
-            <span className="font-semibold text-green-600">{formatAmount(amount)}</span>
+            <span className="font-semibold text-green-600">{amount} USDC</span>
           </div>
           {message && (
             <div className="flex justify-between">
@@ -56,25 +77,20 @@ export function TipAgent({ agentAddress, agentName }: TipAgentProps) {
               <span className="font-semibold text-sm">{message}</span>
             </div>
           )}
+          <div className="mt-4 p-3 bg-gray-100 rounded">
+            <p className="text-xs text-gray-600 mb-1">Transaction:</p>
+            <a
+              href={`https://basescan.org/tx/${txHash}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs text-blue-600 hover:underline break-all"
+            >
+              {txHash}
+            </a>
+          </div>
         </div>
 
-        <div className="space-y-3">
-          <button
-            onClick={handlePayNow}
-            className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700"
-          >
-            Pay with Coinbase
-          </button>
-
-          <button
-            onClick={() => setShowPayment(false)}
-            className="w-full bg-gray-200 text-gray-700 py-2 rounded-lg hover:bg-gray-300"
-          >
-            Cancel
-          </button>
-        </div>
-
-        <p className="text-xs text-gray-500 mt-4 text-center">
+        <p className="text-xs text-gray-500 text-center">
           Powered by x402 instant payments on Base
         </p>
       </div>
@@ -137,12 +153,13 @@ export function TipAgent({ agentAddress, agentName }: TipAgentProps) {
           />
         </div>
 
-        {/* Create tip button */}
+        {/* Send tip button */}
         <button
-          onClick={handleCreateTip}
-          className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700"
+          onClick={handleSendTip}
+          disabled={sending}
+          className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Create Tip Payment
+          {sending ? "Sending Tip..." : "Send Tip"}
         </button>
       </div>
 
