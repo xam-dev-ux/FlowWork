@@ -16,6 +16,7 @@
     "xmtp:watch": "tsx watch src/xmtp-agent.ts",
     "both": "tsx src/index-both.ts",
     "both:watch": "tsx watch src/index-both.ts",
+    "test-deploy": "tsx src/test-deploy.ts",
     "build": "echo 'No build needed'"
   },
   "dependencies": {
