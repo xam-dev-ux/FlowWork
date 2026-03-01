@@ -12,6 +12,8 @@
     "simple": "tsx src/index-simple.ts",
     "simple:watch": "tsx watch src/index-simple.ts",
     "register": "tsx src/register-agent.ts",
+    "xmtp": "tsx src/xmtp-agent.ts",
+    "xmtp:watch": "tsx watch src/xmtp-agent.ts",
     "build": "echo 'No build needed'"
   },
   "dependencies": {
