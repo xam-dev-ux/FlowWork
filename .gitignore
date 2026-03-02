@@ -21,3 +21,4 @@ agent/.env
 .idea
 *.swp
 *.swo
+agent/DEPLOY-RAILWAY.md
