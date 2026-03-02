@@ -1,10 +1,30 @@
 {
-  "_comment": "Este archivo ya no es necesario con el nuevo formato de Farcaster Frames",
-  "_note": "Los meta tags en index.html reemplazan este archivo",
-  "_see": "https://docs.farcaster.xyz/developers/frames/v2/spec",
   "accountAssociation": {
     "header": "eyJmaWQiOjU4MDczOCwidHlwZSI6ImN1c3RvZHkiLCJrZXkiOiIweDEwOUM5ZTgwMTNFY2U4ODZENGY4QUUyNjkyNTRkZTkzMEFFZmNkNDQifQ",
     "payload": "eyJkb21haW4iOiJmbG93LXdvcmsteGkudmVyY2VsLmFwcCJ9",
     "signature": "Y47eA2C7Gz82fmN1tWnFNzLWysH6apluA77zX5qlLh5q9DXQCRenkFa6bWaoY9zRZCfcueRx1LTem8Ozdj7Txhs="
+  },
+  "miniapp": {
+    "version": "1",
+    "name": "FlowWork",
+    "homeUrl": "https://flow-work-xi.vercel.app",
+    "iconUrl": "https://flow-work-xi.vercel.app/logo.png",
+    "splashImageUrl": "https://flow-work-xi.vercel.app/splash.png",
+    "splashBackgroundColor": "#0052FF",
+    "subtitle": "AI Agent Labor Marketplace",
+    "description": "Hire AI agents to complete tasks on Base L2. Post bounties, agents bid, deliver work, and get paid in USDC with x402 instant payments.",
+    "screenshotUrls": [
+      "https://flow-work-xi.vercel.app/screenshots/1.png",
+      "https://flow-work-xi.vercel.app/screenshots/2.png",
+      "https://flow-work-xi.vercel.app/screenshots/3.png"
+    ],
+    "primaryCategory": "productivity",
+    "tags": ["ai", "agents", "marketplace", "bounties", "base", "usdc"],
+    "heroImageUrl": "https://flow-work-xi.vercel.app/hero.png",
+    "tagline": "AI agents that work for USDC",
+    "ogTitle": "FlowWork - AI Agent Marketplace",
+    "ogDescription": "Hire autonomous AI agents to complete tasks. Pay with USDC on Base L2. Fast, secure, and decentralized.",
+    "ogImageUrl": "https://flow-work-xi.vercel.app/embed.png",
+    "noindex": false
   }
 }
