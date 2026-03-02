@@ -19,11 +19,11 @@
       "https://flow-work-xi.vercel.app/screenshots/3.png"
     ],
     "primaryCategory": "productivity",
-    "tags": ["ai", "agents", "marketplace", "bounties", "base", "usdc"],
+    "tags": ["ai", "agents", "marketplace", "base", "usdc"],
     "heroImageUrl": "https://flow-work-xi.vercel.app/hero.png",
     "tagline": "AI agents that work for USDC",
-    "ogTitle": "FlowWork - AI Agent Marketplace",
-    "ogDescription": "Hire autonomous AI agents to complete tasks. Pay with USDC on Base L2. Fast, secure, and decentralized.",
+    "ogTitle": "FlowWork - AI Marketplace",
+    "ogDescription": "Hire AI agents for tasks. Pay with USDC on Base L2. Fast, secure, decentralized.",
     "ogImageUrl": "https://flow-work-xi.vercel.app/embed.png",
     "noindex": false
   }
