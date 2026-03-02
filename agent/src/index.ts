@@ -114,13 +114,13 @@ class FlowWorkAgent {
 
           default:
             await conversation.send(
-              "not sure what to do. need help? visit https://flowwork.vercel.app"
+              "not sure what to do. need help? visit https://flow-work-xi.vercel.app"
             );
         }
       } catch (error) {
         console.error("Error handling message:", error);
         await conversation.send(
-          "something went wrong. please try again or check https://flowwork.vercel.app"
+          "something went wrong. please try again or check https://flow-work-xi.vercel.app"
         );
       }
     });
@@ -144,7 +144,7 @@ class FlowWorkAgent {
       );
 
       await conversation.send(
-        `✅ task created! id: ${taskId}\n\nwaiting for agent bids. you'll get notified when agents respond.\n\nview details: https://flowwork.vercel.app/tasks/${taskId}`
+        `✅ task created! id: ${taskId}\n\nwaiting for agent bids. you'll get notified when agents respond.\n\nview details: https://flow-work-xi.vercel.app/tasks/${taskId}`
       );
 
       setTimeout(() => this.notifyMatchingAgents(taskId, intent.category), 5000);
@@ -226,7 +226,7 @@ class FlowWorkAgent {
 
       await this.notifyAgent(
         agentAddress,
-        `🎉 you've been selected for task #${taskId}!\n\nstart working and submit delivery when ready.\n\nview: https://flowwork.vercel.app/tasks/${taskId}`
+        `🎉 you've been selected for task #${taskId}!\n\nstart working and submit delivery when ready.\n\nview: https://flow-work-xi.vercel.app/tasks/${taskId}`
       );
     });
 
@@ -237,7 +237,7 @@ class FlowWorkAgent {
 
       await this.notifyClient(
         task.client,
-        `📦 task #${event.args.taskId} delivered!\n\nipfs: ${event.args.ipfsHash}\n\nreview and approve or dispute.\n\nview: https://flowwork.vercel.app/tasks/${event.args.taskId}`
+        `📦 task #${event.args.taskId} delivered!\n\nipfs: ${event.args.ipfsHash}\n\nreview and approve or dispute.\n\nview: https://flow-work-xi.vercel.app/tasks/${event.args.taskId}`
       );
     });
 
@@ -246,7 +246,7 @@ class FlowWorkAgent {
 
       await this.notifyAgent(
         event.args.agent,
-        `💰 payment received for task #${event.args.taskId}!\n\namount: $${Number(event.args.amount) / 1_000_000}\n\nwithdraw anytime at https://flowwork.vercel.app/profile`
+        `💰 payment received for task #${event.args.taskId}!\n\namount: $${Number(event.args.amount) / 1_000_000}\n\nwithdraw anytime at https://flow-work-xi.vercel.app/profile`
       );
     });
 
@@ -257,7 +257,7 @@ class FlowWorkAgent {
       for (const reviewer of reviewers) {
         await this.notifyAgent(
           reviewer,
-          `⚖️ you've been selected as a dispute reviewer for task #${event.args.taskId}\n\nreview the work and vote within 24h.\n\nview: https://flowwork.vercel.app/tasks/${event.args.taskId}`
+          `⚖️ you've been selected as a dispute reviewer for task #${event.args.taskId}\n\nreview the work and vote within 24h.\n\nview: https://flow-work-xi.vercel.app/tasks/${event.args.taskId}`
         );
       }
     });
@@ -272,7 +272,7 @@ class FlowWorkAgent {
       if (agent.specialties.includes(this.categoryToString(category))) {
         await this.notifyAgent(
           agentAddress,
-          `🔔 new task in ${this.categoryToString(category)}!\n\ntask #${taskId}\n\nsubmit a bid to compete.\n\nview: https://flowwork.vercel.app/tasks/${taskId}`
+          `🔔 new task in ${this.categoryToString(category)}!\n\ntask #${taskId}\n\nsubmit a bid to compete.\n\nview: https://flow-work-xi.vercel.app/tasks/${taskId}`
         );
       }
     }

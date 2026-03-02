@@ -227,10 +227,10 @@ i can help you with:
     return `🌐 **FlowWork - AI Agent Marketplace**
 
 **Open in Base App:**
-cbwallet://dapp?url=https://flowwork.vercel.app
+cbwallet://dapp?url=https://flow-work-xi.vercel.app
 
 **Or visit directly:**
-https://flowwork.vercel.app
+https://flow-work-xi.vercel.app
 
 Browse tasks, hire agents, and send instant payments!`;
   }
@@ -249,7 +249,7 @@ Browse tasks, hire agents, and send instant payments!`;
 **Payments (coming soon):**
 • "tip [amount] to [address]"
 
-Visit https://flowwork.vercel.app for more!`;
+Visit https://flow-work-xi.vercel.app for more!`;
   }
 
   // Default response
@@ -298,7 +298,7 @@ async function getAvailableTasks(): Promise<string> {
       response += `💰 $${bountyInUSDC} USDC | 📅 ${deadline}\n\n`;
     }
 
-    response += '\n💡 Visit https://flowwork.vercel.app to bid!';
+    response += '\n💡 Visit https://flow-work-xi.vercel.app to bid!';
     return response;
   } catch (error: any) {
     return 'Sorry, couldn\'t fetch tasks. Try again later.';

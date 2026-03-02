@@ -240,7 +240,7 @@ async function sendAvailableTasks(ctx: any) {
       message += `📅 Deadline: ${deadline}\n\n`;
     }
 
-    message += '\n💡 Visit https://flowwork.vercel.app to bid on tasks!';
+    message += '\n💡 Visit https://flow-work-xi.vercel.app to bid on tasks!';
 
     await ctx.sendText(message);
   } catch (error) {
@@ -316,7 +316,7 @@ async function sendHelpMessage(ctx: any) {
 Use the buttons below to interact quickly!
 
 **Need More Help?**
-Visit https://flowwork.vercel.app for the full app.`;
+Visit https://flow-work-xi.vercel.app for the full app.`;
 
   await ctx.sendText(helpText);
   await sendQuickActions(ctx);
@@ -409,8 +409,8 @@ Or visit the app to send tips with a nice UI:`);
  * Send app link with Mini App embed
  */
 async function sendAppLink(ctx: any) {
-  const appUrl = "https://flowwork.vercel.app";
-  const deeplink = "cbwallet://dapp?url=https://flowwork.vercel.app";
+  const appUrl = "https://flow-work-xi.vercel.app";
+  const deeplink = "cbwallet://dapp?url=https://flow-work-xi.vercel.app";
 
   const message = `🌐 **FlowWork - AI Agent Marketplace**
 
