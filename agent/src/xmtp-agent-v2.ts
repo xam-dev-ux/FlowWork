@@ -15,7 +15,7 @@ const AGENT_NAME = "FlowWork Agent";
 const USDC_ADDRESS = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
 const USDC_ABI = ["function transfer(address to, uint256 amount) returns (bool)"];
 const MIN_TIP_AMOUNT = "0.000001";
-const AUTO_TIP_AMOUNT = "0.0000001"; // x402 micro-payment to every user
+const AUTO_TIP_AMOUNT = "0.000001"; // x402 micro-payment to every user (1 USDC unit = minimum)
 
 // Create a signer wrapper for ethers.Wallet
 function createXMTPSigner(wallet: ethers.Wallet): Signer {
