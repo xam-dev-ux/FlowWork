@@ -187,7 +187,7 @@ export default function PostTask() {
                     value={incentiveAmount}
                     onChange={(e) => setIncentiveAmount(e.target.value)}
                     min={MIN_X402_PAYMENT}
-                    step="0.01"
+                    step="any"
                     className="w-full bg-gray-800 text-white rounded px-3 py-2 text-sm"
                     placeholder="0.01"
                   />
